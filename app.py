@@ -48,6 +48,9 @@ def generate_prompt_details(base_prompt, language):
         st.error(f"프롬프트 생성 중 오류 발생: {str(e)}")
         return None
 
+# 예시 프롬프트 제공 (사용자 입력 전에만 표시)
+st.write("예시 프롬프트: '햇살이 가득한 여름 오후, 공원에서 책을 읽는 20대 여성. 그녀는 짧은 갈색 머리를 하고 있으며, 노란색 드레스를 입고 편안한 미소를 짓고 있다.'")
+
 # 사용자로부터 입력받기
 st.write("프롬프트를 작성할 때 다음 요소를 포함하세요: 시간, 공간, 배경, 피사체(인물인 경우 세부 묘사)")
 student_prompt = st.text_input('숏폼 컨텐츠에 사용할 이미지를 설명하는 기본 아이디어를 입력하세요:', '')
@@ -69,6 +72,3 @@ if student_prompt:
             if english_prompt:
                 st.subheader("English Prompt")
                 st.write(english_prompt)
-
-# 예시 프롬프트 제공
-st.write("예시 프롬프트: '햇살이 가득한 여름 오후, 공원에서 책을 읽는 20대 여성. 그녀는 짧은 갈색 머리를 하고 있으며, 노란색 드레스를 입고 편안한 미소를 짓고 있다.'")
