@@ -1,8 +1,37 @@
 from openai import OpenAI
 import streamlit as st
+import os
+
+# API 키를 가져오는 함수
+def get_api_key():
+    # 1. 환경 변수에서 확인
+    api_key = os.getenv("OPENAI_API_KEY")
+    if api_key:
+        return api_key
+    
+    # 2. Streamlit secrets에서 확인
+    try:
+        return st.secrets["openai"]["api_key"]
+    except KeyError:
+        pass
+    
+    try:
+        return st.secrets["OPENAI_API_KEY"]
+    except KeyError:
+        pass
+    
+    # API 키를 찾지 못한 경우
+    st.error("OpenAI API 키를 찾을 수 없습니다. 환경 변수나 Streamlit secrets를 확인해주세요.")
+    return None
+
+# API 키 가져오기
+api_key = get_api_key()
 
 # OpenAI 클라이언트 초기화
-client = OpenAI(api_key=st.secrets["openai"]["api_key"])
+if api_key:
+    client = OpenAI(api_key=api_key)
+else:
+    st.stop()  # API 키가 없으면 앱 실행을 중지합니다.
 
 # 스트림릿 앱 설정
 st.title('불편한 편의점 숏폼 과제 지원 프로그램')
