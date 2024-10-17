@@ -4,7 +4,11 @@ import os
 import streamlit as st
 
 # 스트림릿 비밀 설정을 통해 API 키 설정
-client = OpenAI(api_key=st.secrets['OPENAI_API_KEY'])
+try:
+    client = OpenAI(api_key=st.secrets['OPENAI_API_KEY'])
+except KeyError:
+    st.error("API 키가 설정되어 있지 않습니다. secrets.toml 파일에 'OPENAI_API_KEY'를 추가해 주세요.")
+    client = None
 
 # 스트림릿 앱 설정
 st.title('불편한 편의점 숏폼 과제 지원 프로그램')
@@ -39,8 +43,14 @@ if student_prompt:
         st.warning("아이디어가 너무 짧습니다. 더 구체적으로 작성해 주세요.")
     else:
         st.write('프롬프트 상세 설명:')
-        detailed_prompt = generate_prompt_details(student_prompt)
+        if client:
+            detailed_prompt = generate_prompt_details(student_prompt)
+            st.write(detailed_prompt)
         st.write(detailed_prompt)
 
 # 예시 프롬프트 제공
 st.write("예시 프롬프트: '햇살이 가득한 여름 오후, 공원에서 책을 읽는 20대 여성. 그녀는 짧은 갈색 머리를 하고 있으며, 노란색 드레스를 입고 편안한 미소를 짓고 있다.'")
+
+# Streamlit의 secrets.toml 파일 설정 예시
+# [secrets]
+# OPENAI_API_KEY = 'your_openai_api_key_here'
