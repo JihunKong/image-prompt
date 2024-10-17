@@ -1,16 +1,17 @@
 # streamlit 앱을 위한 프로그램 코드
-import openai
+from openai import OpenAI
 import os
 import streamlit as st
 
-# 환경 변수 설정
-openai.api_key = os.getenv('OPENAI_API_KEY')
+# 스트림릿 비밀 설정을 통해 API 키 설정
+client = OpenAI()
+client.api_key = st.secrets['OPENAI_API_KEY']
 
 # 스트림릿 앱 설정
 st.title('불편한 편의점 숏폼 과제 지원 프로그램')
 st.write('학생들이 <불편한 편의점>을 읽고 자신만의 생각을 담은 숏폼 컨텐츠를 만들 수 있도록 돕기 위한 프로그램입니다.')
 
-# GPT 4o-mini를 통해 프롬프트 생성 지원
+# GPT 4 모델을 통해 프롬프트 생성 지원
 def generate_prompt_details(base_prompt):
     prompt_details = (
         f"시간 및 공간에 대한 설명을 포함합니다.\n"
@@ -20,12 +21,15 @@ def generate_prompt_details(base_prompt):
         f"언어는 이미지에 포함되지 않으므로 언어 표현은 제외합니다.\n"
         f"기본 프롬프트: {base_prompt}"
     )
-    response = openai.Completion.create(
-        engine="gpt-4o-mini",
-        prompt=prompt_details,
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "system", "content": "학생들이 이미지를 구체적으로 묘사할 수 있도록 도움을 주는 역할입니다."},
+            {"role": "user", "content": prompt_details}
+        ],
         max_tokens=200
     )
-    return response.choices[0].text.strip()
+    return response['choices'][0]['content'].strip()
 
 # 사용자로부터 입력받기
 st.write("프롬프트를 작성할 때 다음 요소를 포함하세요: 시간, 공간, 배경, 피사체(인물인 경우 세부 묘사)")
