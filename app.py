@@ -4,8 +4,7 @@ import os
 import streamlit as st
 
 # 스트림릿 비밀 설정을 통해 API 키 설정
-client = OpenAI()
-client.api_key = st.secrets['OPENAI_API_KEY']
+client = OpenAI(api_key=st.secrets['OPENAI_API_KEY'])
 
 # 스트림릿 앱 설정
 st.title('불편한 편의점 숏폼 과제 지원 프로그램')
