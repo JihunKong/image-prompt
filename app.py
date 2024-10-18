@@ -1,5 +1,4 @@
 import streamlit as st
-import json
 from openai import OpenAI
 
 # OpenAI 클라이언트 초기화
@@ -69,11 +68,19 @@ if student_prompt:
             st.write(korean_prompt)
 
             # 한국어 프롬프트 복사 버튼
-            korean_prompt_json = json.dumps(korean_prompt)
-            copy_korean_button = f"""
-            <button onclick="navigator.clipboard.writeText({korean_prompt_json}); alert('한국어 프롬프트가 복사되었습니다.');">한국어 프롬프트 복사하기</button>
+            korean_copy_code = f"""
+            <button onclick="copyToClipboard(`{korean_prompt}`)">한국어 프롬프트 복사하기</button>
+            <script>
+            function copyToClipboard(text) {{
+                navigator.clipboard.writeText(text).then(function() {{
+                    alert('한국어 프롬프트가 복사되었습니다.');
+                }}, function(err) {{
+                    alert('복사에 실패하였습니다. 브라우저 설정을 확인해주세요.');
+                }});
+            }}
+            </script>
             """
-            st.markdown(copy_korean_button, unsafe_allow_html=True)
+            st.markdown(korean_copy_code, unsafe_allow_html=True)
 
             # 영어 번역
             english_prompt = translate_to_english(korean_prompt)
@@ -82,8 +89,16 @@ if student_prompt:
                 st.write(english_prompt)
 
                 # 영어 프롬프트 복사 버튼
-                english_prompt_json = json.dumps(english_prompt)
-                copy_english_button = f"""
-                <button onclick="navigator.clipboard.writeText({english_prompt_json}); alert('English prompt copied to clipboard.');">Copy English Prompt</button>
+                english_copy_code = f"""
+                <button onclick="copyToClipboard(`{english_prompt}`)">Copy English Prompt</button>
+                <script>
+                function copyToClipboard(text) {{
+                    navigator.clipboard.writeText(text).then(function() {{
+                        alert('English prompt copied to clipboard.');
+                    }}, function(err) {{
+                        alert('Failed to copy. Please check your browser settings.');
+                    }});
+                }}
+                </script>
                 """
-                st.markdown(copy_english_button, unsafe_allow_html=True)
+                st.markdown(english_copy_code, unsafe_allow_html=True)
