@@ -12,7 +12,7 @@ st.write('학생들이 <불편한 편의점>을 읽고 자신만의 생각을 �
 def translate_to_english(text):
     try:
         completion = client.chat.completions.create(
-            model="gpt-4o-mini",
+            model="gpt-4o-mini",  # 최신 모델로 업데이트
             messages=[
                 {"role": "system", "content": "You are a professional translator. Translate the given Korean text to English."},
                 {"role": "user", "content": f"Translate the following Korean text to English: {text}"}
@@ -37,7 +37,7 @@ def generate_prompt_details(base_prompt, language):
     )
     try:
         completion = client.chat.completions.create(
-            model="gpt-4o-mini",
+            model="gpt-4o-mini",  # 최신 모델로 업데이트
             messages=[
                 {"role": "system", "content": "학생들이 이미지를 구체적으로 묘사할 수 있도록 도움을 주는 역할입니다."},
                 {"role": "user", "content": prompt_details}
@@ -60,45 +60,16 @@ if student_prompt:
         st.warning("아이디어가 너무 짧습니다. 더 구체적으로 작성해 주세요.")
     else:
         st.write('프롬프트 상세 설명:')
-
         # 한국어 프롬프트 생성
         korean_prompt = generate_prompt_details(student_prompt, "한국어")
         if korean_prompt:
             st.subheader("한국어 프롬프트")
-            st.write(korean_prompt)
-
-            # 한국어 프롬프트 복사 버튼
-            korean_copy_code = f"""
-            <button onclick="copyToClipboard(`{korean_prompt}`)">한국어 프롬프트 복사하기</button>
-            <script>
-            function copyToClipboard(text) {{
-                navigator.clipboard.writeText(text).then(function() {{
-                    alert('한국어 프롬프트가 복사되었습니다.');
-                }}, function(err) {{
-                    alert('복사에 실패하였습니다. 브라우저 설정을 확인해주세요.');
-                }});
-            }}
-            </script>
-            """
-            st.markdown(korean_copy_code, unsafe_allow_html=True)
+            st.code(korean_prompt, language='text')
+            st.info("위의 코드 블록 오른쪽 상단의 복사 버튼을 클릭하여 한국어 프롬프트를 복사할 수 있습니다.")
 
             # 영어 번역
             english_prompt = translate_to_english(korean_prompt)
             if english_prompt:
                 st.subheader("English Prompt")
-                st.write(english_prompt)
-
-                # 영어 프롬프트 복사 버튼
-                english_copy_code = f"""
-                <button onclick="copyToClipboard(`{english_prompt}`)">Copy English Prompt</button>
-                <script>
-                function copyToClipboard(text) {{
-                    navigator.clipboard.writeText(text).then(function() {{
-                        alert('English prompt copied to clipboard.');
-                    }}, function(err) {{
-                        alert('Failed to copy. Please check your browser settings.');
-                    }});
-                }}
-                </script>
-                """
-                st.markdown(english_copy_code, unsafe_allow_html=True)
+                st.code(english_prompt, language='text')
+                st.info("Click the copy button in the top right corner of the code block above to copy the English prompt.")
