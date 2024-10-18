@@ -1,4 +1,5 @@
 import streamlit as st
+import pyperclip
 from openai import OpenAI
 
 # OpenAI 클라이언트 초기화
@@ -6,32 +7,6 @@ client = OpenAI(api_key=st.secrets["openai"]["api_key"])
 
 # 페이지 설정
 st.set_page_config(page_title="불편한 편의점 숏폼 과제 지원", layout="wide")
-
-# 클립보드 복사 함수를 위한 JavaScript 코드
-st.markdown("""
-<script>
-function copyToClipboard(text, button_id) {
-    navigator.clipboard.writeText(text).then(function() {
-        var button = document.getElementById(button_id);
-        button.innerHTML = '복사됨!';
-        setTimeout(function() {
-            button.innerHTML = '클립보드에 복사';
-        }, 2000);
-    }).catch(function(err) {
-        console.error('클립보드 복사 실패:', err);
-    });
-}
-</script>
-""", unsafe_allow_html=True)
-
-# 복사 버튼 생성 함수
-def create_copy_button(text, button_id):
-    return f"""
-    <button id="{button_id}" onclick="copyToClipboard('{text}', '{button_id}')" 
-    style="background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
-    클립보드에 복사
-    </button>
-    """
 
 # 사이드바에 앱 설명 추가
 with st.sidebar:
@@ -49,7 +24,7 @@ st.write('학생들이 <불편한 편의점>을 읽고 자신만의 생각을 �
 def translate_to_english(text):
     try:
         completion = client.chat.completions.create(
-            model="gpt-4-1106-preview",
+            model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": "You are a professional translator. Translate the given Korean text to English."},
                 {"role": "user", "content": f"Translate the following Korean text to English: {text}"}
@@ -74,7 +49,7 @@ def generate_prompt_details(base_prompt, language):
     )
     try:
         completion = client.chat.completions.create(
-            model="gpt-4-1106-preview",
+            model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": "학생들이 이미지를 구체적으로 묘사할 수 있도록 도움을 주는 역할입니다."},
                 {"role": "user", "content": prompt_details}
@@ -84,6 +59,12 @@ def generate_prompt_details(base_prompt, language):
     except Exception as e:
         st.error(f"프롬프트 생성 중 오류 발생: {str(e)}")
         return None
+
+# 클립보드에 복사하는 함수
+def copy_to_clipboard(text, button_key):
+    if st.button('클립보드에 복사', key=button_key):
+        pyperclip.copy(text)
+        st.success('클립보드에 복사되었습니다!')
 
 # 예시 프롬프트 제공
 st.info("💡 예시 프롬프트: '햇살이 가득한 여름 오후, 공원에서 책을 읽는 20대 여성. 그녀는 짧은 갈색 머리를 하고 있으며, 노란색 드레스를 입고 편안한 미소를 짓고 있다.'")
@@ -103,14 +84,14 @@ if st.button('프롬프트 생성', key='generate'):
             if korean_prompt:
                 st.subheader("🇰🇷 한국어 프롬프트")
                 st.text_area("생성된 한국어 프롬프트:", value=korean_prompt, height=200, key='korean_prompt')
-                st.markdown(create_copy_button(korean_prompt.replace("\n", "\\n"), "korean_copy_btn"), unsafe_allow_html=True)
+                copy_to_clipboard(korean_prompt, 'korean_copy_btn')
 
                 # 영어 번역
                 english_prompt = translate_to_english(korean_prompt)
                 if english_prompt:
                     st.subheader("🇺🇸 English Prompt")
                     st.text_area("Generated English Prompt:", value=english_prompt, height=200, key='english_prompt')
-                    st.markdown(create_copy_button(english_prompt.replace("\n", "\\n"), "english_copy_btn"), unsafe_allow_html=True)
+                    copy_to_clipboard(english_prompt, 'english_copy_btn')
 
 # 푸터 추가
 st.markdown("---")
