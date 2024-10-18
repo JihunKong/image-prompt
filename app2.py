@@ -1,6 +1,5 @@
 import streamlit as st
 from openai import OpenAI
-from streamlit_js_eval import streamlit_js_eval
 
 # OpenAI 클라이언트 초기화
 client = OpenAI(api_key=st.secrets["openai"]["api_key"])
@@ -8,13 +7,19 @@ client = OpenAI(api_key=st.secrets["openai"]["api_key"])
 # 페이지 설정
 st.set_page_config(page_title="불편한 편의점 숏폼 과제 지원", layout="wide")
 
+# 세션 상태 초기화
+if 'korean_prompt' not in st.session_state:
+    st.session_state.korean_prompt = ""
+if 'english_prompt' not in st.session_state:
+    st.session_state.english_prompt = ""
+
 # 사이드바에 앱 설명 추가
 with st.sidebar:
     st.title("앱 사용 가이드")
     st.write("1. 기본 아이디어를 입력하세요.")
     st.write("2. '프롬프트 생성' 버튼을 클릭하세요.")
     st.write("3. 생성된 한국어와 영어 프롬프트를 확인하세요.")
-    st.write("4. '클립보드에 복사' 버튼을 눌러 프롬프트를 복사하세요.")
+    st.write("4. 프롬프트를 선택하고 복사하세요.")
 
 # 메인 페이지 콘텐츠
 st.title('📚 불편한 편의점 숏폼 과제 지원 프로그램')
@@ -60,13 +65,6 @@ def generate_prompt_details(base_prompt, language):
         st.error(f"프롬프트 생성 중 오류 발생: {str(e)}")
         return None
 
-# 클립보드에 복사하는 함수
-def copy_to_clipboard(text, button_key):
-    if st.button('클립보드에 복사', key=button_key):
-        js = f"navigator.clipboard.writeText('{text.replace("'", "\\'")}');"
-        streamlit_js_eval(js)
-        st.success('클립보드에 복사되었습니다!')
-
 # 예시 프롬프트 제공
 st.info("💡 예시 프롬프트: '햇살이 가득한 여름 오후, 공원에서 책을 읽는 20대 여성. 그녀는 짧은 갈색 머리를 하고 있으며, 노란색 드레스를 입고 편안한 미소를 짓고 있다.'")
 
@@ -81,18 +79,39 @@ if st.button('프롬프트 생성', key='generate'):
     else:
         with st.spinner('프롬프트 생성 중...'):
             # 한국어 프롬프트 생성
-            korean_prompt = generate_prompt_details(student_prompt, "한국어")
-            if korean_prompt:
-                st.subheader("🇰🇷 한국어 프롬프트")
-                st.text_area("생성된 한국어 프롬프트:", value=korean_prompt, height=200, key='korean_prompt')
-                copy_to_clipboard(korean_prompt, 'korean_copy_btn')
-
+            st.session_state.korean_prompt = generate_prompt_details(student_prompt, "한국어")
+            if st.session_state.korean_prompt:
                 # 영어 번역
-                english_prompt = translate_to_english(korean_prompt)
-                if english_prompt:
-                    st.subheader("🇺🇸 English Prompt")
-                    st.text_area("Generated English Prompt:", value=english_prompt, height=200, key='english_prompt')
-                    copy_to_clipboard(english_prompt, 'english_copy_btn')
+                st.session_state.english_prompt = translate_to_english(st.session_state.korean_prompt)
+
+# 생성된 프롬프트 표시
+if st.session_state.korean_prompt:
+    st.subheader("🇰🇷 한국어 프롬프트")
+    st.text_area("생성된 한국어 프롬프트:", value=st.session_state.korean_prompt, height=200, key='korean_prompt_display')
+    st.markdown("""
+    <button onclick="copyToClipboard('korean')">클립보드에 복사</button>
+    """, unsafe_allow_html=True)
+
+if st.session_state.english_prompt:
+    st.subheader("🇺🇸 English Prompt")
+    st.text_area("Generated English Prompt:", value=st.session_state.english_prompt, height=200, key='english_prompt_display')
+    st.markdown("""
+    <button onclick="copyToClipboard('english')">Copy to Clipboard</button>
+    """, unsafe_allow_html=True)
+
+# JavaScript for clipboard copy
+st.markdown("""
+<script>
+function copyToClipboard(lang) {
+    var text = document.querySelector(`textarea[key="${lang}_prompt_display"]`).value;
+    navigator.clipboard.writeText(text).then(function() {
+        alert('클립보드에 복사되었습니다!');
+    }).catch(function(err) {
+        console.error('클립보드 복사 실패:', err);
+    });
+}
+</script>
+""", unsafe_allow_html=True)
 
 # 푸터 추가
 st.markdown("---")
