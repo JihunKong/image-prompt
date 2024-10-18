@@ -1,4 +1,5 @@
 import streamlit as st
+import json
 from openai import OpenAI
 
 # OpenAI 클라이언트 초기화
@@ -68,14 +69,11 @@ if student_prompt:
             st.write(korean_prompt)
 
             # 한국어 프롬프트 복사 버튼
-            copy_korean = st.button("한국어 프롬프트 복사하기")
-            if copy_korean:
-                st.write("한국어 프롬프트가 클립보드에 복사되었습니다.")
-                st.markdown(f"""
-                    <script>
-                    navigator.clipboard.writeText(`{korean_prompt}`);
-                    </script>
-                    """, unsafe_allow_html=True)
+            korean_prompt_json = json.dumps(korean_prompt)
+            copy_korean_button = f"""
+            <button onclick="navigator.clipboard.writeText({korean_prompt_json}); alert('한국어 프롬프트가 복사되었습니다.');">한국어 프롬프트 복사하기</button>
+            """
+            st.markdown(copy_korean_button, unsafe_allow_html=True)
 
             # 영어 번역
             english_prompt = translate_to_english(korean_prompt)
@@ -84,11 +82,8 @@ if student_prompt:
                 st.write(english_prompt)
 
                 # 영어 프롬프트 복사 버튼
-                copy_english = st.button("Copy English Prompt")
-                if copy_english:
-                    st.write("English prompt copied to clipboard.")
-                    st.markdown(f"""
-                        <script>
-                        navigator.clipboard.writeText(`{english_prompt}`);
-                        </script>
-                        """, unsafe_allow_html=True)
+                english_prompt_json = json.dumps(english_prompt)
+                copy_english_button = f"""
+                <button onclick="navigator.clipboard.writeText({english_prompt_json}); alert('English prompt copied to clipboard.');">Copy English Prompt</button>
+                """
+                st.markdown(copy_english_button, unsafe_allow_html=True)
