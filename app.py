@@ -60,15 +60,21 @@ if student_prompt:
         st.warning("아이디어가 너무 짧습니다. 더 구체적으로 작성해 주세요.")
     else:
         st.write('프롬프트 상세 설명:')
-        
+
         # 한국어 프롬프트 생성
         korean_prompt = generate_prompt_details(student_prompt, "한국어")
         if korean_prompt:
             st.subheader("한국어 프롬프트")
             st.write(korean_prompt)
-            
+
+            # 한국어 프롬프트 복사하기
+            st.text_area("한국어 프롬프트 복사하기", korean_prompt, height=150)
+
             # 영어 번역
             english_prompt = translate_to_english(korean_prompt)
             if english_prompt:
                 st.subheader("English Prompt")
                 st.write(english_prompt)
+
+                # 영어 프롬프트 복사하기
+                st.text_area("Copy English Prompt", english_prompt, height=150)
