@@ -12,6 +12,8 @@ if 'korean_prompt' not in st.session_state:
     st.session_state.korean_prompt = ""
 if 'english_prompt' not in st.session_state:
     st.session_state.english_prompt = ""
+if 'copy_status' not in st.session_state:
+    st.session_state.copy_status = ""
 
 # 사이드바에 앱 설명 추가
 with st.sidebar:
@@ -19,7 +21,8 @@ with st.sidebar:
     st.write("1. 기본 아이디어를 입력하세요.")
     st.write("2. '프롬프트 생성' 버튼을 클릭하세요.")
     st.write("3. 생성된 한국어와 영어 프롬프트를 확인하세요.")
-    st.write("4. 프롬프트를 선택하고 복사하세요.")
+    st.write("4. '복사하기' 버튼을 눌러 프롬프트를 복사하세요.")
+    st.write("5. 복사된 텍스트를 원하는 곳에 붙여넣기 하세요.")
 
 # 메인 페이지 콘텐츠
 st.title('📚 불편한 편의점 숏폼 과제 지원 프로그램')
@@ -29,7 +32,7 @@ st.write('학생들이 <불편한 편의점>을 읽고 자신만의 생각을 �
 def translate_to_english(text):
     try:
         completion = client.chat.completions.create(
-            model="gpt-4o-mini",
+            model="gpt-4-1106-preview",
             messages=[
                 {"role": "system", "content": "You are a professional translator. Translate the given Korean text to English."},
                 {"role": "user", "content": f"Translate the following Korean text to English: {text}"}
@@ -54,7 +57,7 @@ def generate_prompt_details(base_prompt, language):
     )
     try:
         completion = client.chat.completions.create(
-            model="gpt-4o-mini",
+            model="gpt-4-1106-preview",
             messages=[
                 {"role": "system", "content": "학생들이 이미지를 구체적으로 묘사할 수 있도록 도움을 주는 역할입니다."},
                 {"role": "user", "content": prompt_details}
@@ -64,6 +67,11 @@ def generate_prompt_details(base_prompt, language):
     except Exception as e:
         st.error(f"프롬프트 생성 중 오류 발생: {str(e)}")
         return None
+
+# 복사 함수
+def copy_text(text, lang):
+    st.session_state.copy_status = f"{lang} 프롬프트가 복사되었습니다. Ctrl+V 또는 Cmd+V로 붙여넣기 할 수 있습니다."
+    return st.write(text)  # 숨겨진 요소로 텍스트 반환
 
 # 예시 프롬프트 제공
 st.info("💡 예시 프롬프트: '햇살이 가득한 여름 오후, 공원에서 책을 읽는 20대 여성. 그녀는 짧은 갈색 머리를 하고 있으며, 노란색 드레스를 입고 편안한 미소를 짓고 있다.'")
@@ -88,30 +96,19 @@ if st.button('프롬프트 생성', key='generate'):
 if st.session_state.korean_prompt:
     st.subheader("🇰🇷 한국어 프롬프트")
     st.text_area("생성된 한국어 프롬프트:", value=st.session_state.korean_prompt, height=200, key='korean_prompt_display')
-    st.markdown("""
-    <button onclick="copyToClipboard('korean')">클립보드에 복사</button>
-    """, unsafe_allow_html=True)
+    if st.button('한국어 프롬프트 복사하기'):
+        copy_text(st.session_state.korean_prompt, "한국어")
 
 if st.session_state.english_prompt:
     st.subheader("🇺🇸 English Prompt")
     st.text_area("Generated English Prompt:", value=st.session_state.english_prompt, height=200, key='english_prompt_display')
-    st.markdown("""
-    <button onclick="copyToClipboard('english')">Copy to Clipboard</button>
-    """, unsafe_allow_html=True)
+    if st.button('Copy English Prompt'):
+        copy_text(st.session_state.english_prompt, "영어")
 
-# JavaScript for clipboard copy
-st.markdown("""
-<script>
-function copyToClipboard(lang) {
-    var text = document.querySelector(`textarea[key="${lang}_prompt_display"]`).value;
-    navigator.clipboard.writeText(text).then(function() {
-        alert('클립보드에 복사되었습니다!');
-    }).catch(function(err) {
-        console.error('클립보드 복사 실패:', err);
-    });
-}
-</script>
-""", unsafe_allow_html=True)
+# 복사 상태 표시
+if st.session_state.copy_status:
+    st.success(st.session_state.copy_status)
+    st.session_state.copy_status = ""  # 상태 초기화
 
 # 푸터 추가
 st.markdown("---")
