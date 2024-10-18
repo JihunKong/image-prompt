@@ -29,7 +29,7 @@ st.write('학생들이 <불편한 편의점>을 읽고 자신만의 생각을 �
 def translate_to_english(text):
     try:
         completion = client.chat.completions.create(
-            model="gpt-4-1106-preview",
+            model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": "You are a professional translator. Translate the given Korean text to English."},
                 {"role": "user", "content": f"Translate the following Korean text to English: {text}"}
@@ -54,7 +54,7 @@ def generate_prompt_details(base_prompt, language):
     )
     try:
         completion = client.chat.completions.create(
-            model="gpt-4-1106-preview",
+            model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": "학생들이 이미지를 구체적으로 묘사할 수 있도록 도움을 주는 역할입니다."},
                 {"role": "user", "content": prompt_details}
