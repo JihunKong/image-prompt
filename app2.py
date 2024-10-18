@@ -1,6 +1,6 @@
 import streamlit as st
-import pyperclip
 from openai import OpenAI
+from streamlit_js_eval import streamlit_js_eval
 
 # OpenAI 클라이언트 초기화
 client = OpenAI(api_key=st.secrets["openai"]["api_key"])
@@ -24,7 +24,7 @@ st.write('학생들이 <불편한 편의점>을 읽고 자신만의 생각을 �
 def translate_to_english(text):
     try:
         completion = client.chat.completions.create(
-            model="gpt-4o-mini",
+            model="gpt-4-1106-preview",
             messages=[
                 {"role": "system", "content": "You are a professional translator. Translate the given Korean text to English."},
                 {"role": "user", "content": f"Translate the following Korean text to English: {text}"}
@@ -49,7 +49,7 @@ def generate_prompt_details(base_prompt, language):
     )
     try:
         completion = client.chat.completions.create(
-            model="gpt-4o-mini",
+            model="gpt-4-1106-preview",
             messages=[
                 {"role": "system", "content": "학생들이 이미지를 구체적으로 묘사할 수 있도록 도움을 주는 역할입니다."},
                 {"role": "user", "content": prompt_details}
@@ -63,7 +63,8 @@ def generate_prompt_details(base_prompt, language):
 # 클립보드에 복사하는 함수
 def copy_to_clipboard(text, button_key):
     if st.button('클립보드에 복사', key=button_key):
-        pyperclip.copy(text)
+        js = f"navigator.clipboard.writeText('{text.replace("'", "\\'")}');"
+        streamlit_js_eval(js)
         st.success('클립보드에 복사되었습니다!')
 
 # 예시 프롬프트 제공
