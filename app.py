@@ -67,8 +67,15 @@ if student_prompt:
             st.subheader("한국어 프롬프트")
             st.write(korean_prompt)
 
-            # 한국어 프롬프트 복사하기
-            st.text_area("한국어 프롬프트 복사하기", korean_prompt, height=150)
+            # 한국어 프롬프트 복사 버튼
+            copy_korean = st.button("한국어 프롬프트 복사하기")
+            if copy_korean:
+                st.write("한국어 프롬프트가 클립보드에 복사되었습니다.")
+                st.markdown(f"""
+                    <script>
+                    navigator.clipboard.writeText(`{korean_prompt}`);
+                    </script>
+                    """, unsafe_allow_html=True)
 
             # 영어 번역
             english_prompt = translate_to_english(korean_prompt)
@@ -76,5 +83,12 @@ if student_prompt:
                 st.subheader("English Prompt")
                 st.write(english_prompt)
 
-                # 영어 프롬프트 복사하기
-                st.text_area("Copy English Prompt", english_prompt, height=150)
+                # 영어 프롬프트 복사 버튼
+                copy_english = st.button("Copy English Prompt")
+                if copy_english:
+                    st.write("English prompt copied to clipboard.")
+                    st.markdown(f"""
+                        <script>
+                        navigator.clipboard.writeText(`{english_prompt}`);
+                        </script>
+                        """, unsafe_allow_html=True)
